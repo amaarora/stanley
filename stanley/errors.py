@@ -1,0 +1,2 @@
+class SystemPromptError(Exception):
+    pass
