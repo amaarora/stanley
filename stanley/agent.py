@@ -4,15 +4,13 @@ from pathlib import Path
 
 import litellm
 
+from stanley.base_tool import Tool
 from stanley.errors import SystemPromptError
 from stanley.history import AgentHistory
-from stanley.models import Tool
 from stanley.tools import SendMessageToUser
 
 
 class BaseAgent:
-    "The base agent class"
-
     def __init__(self):
         self._system_prompt = self.setup_system_prompt()
         self.tools = self.setup_base_tools()
@@ -30,7 +28,7 @@ class BaseAgent:
         return self._system_prompt
 
     @system_prompt.setter
-    def system_prompt(self):
+    def system_prompt(self, value):
         raise SystemPromptError(
             "System prompt can only be set during initialization. "
             "Edit stanley/prompts/system-prompt.txt to change the prompt."

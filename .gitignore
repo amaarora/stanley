@@ -129,3 +129,6 @@ celerybeat.pid
 *.db
 *.sqlite
 *.sqlite3
+# Local Claude settings and plans
+.claude/settings.local.json
+plan.md

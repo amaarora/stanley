@@ -1,0 +1,60 @@
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write  # For trusted publishing
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v4
+      with:
+        version: "latest"
+
+    - name: Set up Python
+      run: uv python install 3.11
+
+    - name: Install dependencies
+      run: |
+        uv sync --all-extras --dev
+
+    - name: Verify tag matches version
+      run: |
+        PACKAGE_VERSION=$(uv run python -c "import stanley; print(stanley.__version__)")
+        TAG_VERSION=${GITHUB_REF#refs/tags/v}
+        if [ "$PACKAGE_VERSION" != "$TAG_VERSION" ]; then
+          echo "Version mismatch: package=$PACKAGE_VERSION, tag=$TAG_VERSION"
+          exit 1
+        fi
+
+    - name: Run tests before publishing
+      run: |
+        uv run ruff format --check .
+        uv run ruff check .
+        uv run pytest tests/ -v
+
+    - name: Build package
+      run: |
+        uv build
+
+    - name: Publish to PyPI
+      env:
+        UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+      run: |
+        uv publish
+
+    - name: Verify package installation
+      run: |
+        # Wait a moment for PyPI to process
+        sleep 30
+        # Test installation in fresh environment
+        uv run --isolated pip install stanley-ai==${{ github.ref_name#v }}
+        uv run --isolated python -c "from stanley import Agent, Tool; print('Package installed successfully')"

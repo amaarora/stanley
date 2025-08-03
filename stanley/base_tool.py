@@ -113,13 +113,3 @@ class Tool:
     @abstractmethod
     def execute(self, *args, **kwargs):
         raise NotImplementedError()
-
-
-class SendMessageToUser(Tool):
-    name = "send_message_to_user"
-    description = "Send a message to user and wait for response"
-
-    def execute(
-        self, message: Annotated[str, "The message to send to the user"]
-    ) -> str:
-        return message
