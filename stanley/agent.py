@@ -55,7 +55,7 @@ class BaseAgent:
 class Agent(BaseAgent):
     _MAX_RUN_STEPS = 20
 
-    def __init__(self, model) -> None:
+    def __init__(self, model, tools: list[Tool] | None = None) -> None:
         super().__init__()
         self.model = model
         self.history = AgentHistory()
@@ -63,7 +63,8 @@ class Agent(BaseAgent):
         if self._system_prompt:
             self.history.add_message({"role": "system", "content": self._system_prompt})
 
-        self.tools: list[Tool] = [SendMessageToUser()]
+        if tools:
+            self.tools.extend(tools)
         self._step_idx = 0
 
     @property
