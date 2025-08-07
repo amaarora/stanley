@@ -1,0 +1,3 @@
+tools:
+  - "SearchLinkedIn(url: str)"
+  - "ReadBlogPost(url: str, read_latest_n_posts: int = 3)"
