@@ -11,12 +11,14 @@ from stanley.tools import SendMessageToUser
 
 
 class BaseAgent:
-    def __init__(self):
-        self._system_prompt = self.setup_system_prompt()
+    def __init__(self, system_prompt: str | None = None):
+        self._system_prompt = self.setup_system_prompt(system_prompt)
         self.tools = self.setup_base_tools()
         self._step_idx = 0
 
-    def setup_system_prompt(self) -> str:
+    def setup_system_prompt(self, custom_prompt: str | None = None) -> str:
+        if custom_prompt:
+            return custom_prompt
         prompt_file = Path(__file__).parent / "prompts" / "system-prompt.txt"
         return prompt_file.read_text().strip()
 
@@ -55,8 +57,10 @@ class BaseAgent:
 class Agent(BaseAgent):
     _MAX_RUN_STEPS = 20
 
-    def __init__(self, model, tools: list[Tool] | None = None) -> None:
-        super().__init__()
+    def __init__(
+        self, model, tools: list[Tool] | None = None, system_prompt: str | None = None
+    ) -> None:
+        super().__init__(system_prompt=system_prompt)
         self.model = model
         self.history = AgentHistory()
 

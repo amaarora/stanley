@@ -17,6 +17,11 @@ class TestBaseAgent:
             assert agent._step_idx == 0
             assert len(agent.tools) == 1
 
+    def test_base_agent_with_custom_prompt(self):
+        custom_prompt = "Custom system prompt"
+        agent = BaseAgent(system_prompt=custom_prompt)
+        assert agent._system_prompt == custom_prompt
+
     def test_system_prompt_property(self):
         with patch.object(BaseAgent, "setup_system_prompt", return_value="Test prompt"):
             agent = BaseAgent()
@@ -60,6 +65,22 @@ class TestAgent:
         assert agent._step_idx == 0
         assert len(agent.history) > 0
         assert len(agent.tools) == 1
+
+    def test_agent_with_custom_system_prompt(self):
+        custom_prompt = "You are a custom AI assistant."
+        agent = Agent(model="gpt-4", system_prompt=custom_prompt)
+        assert agent._system_prompt == custom_prompt
+        messages = list(agent.history)
+        assert messages[0]["role"] == "system"
+        assert messages[0]["content"] == custom_prompt
+
+    def test_agent_without_custom_system_prompt(self):
+        agent = Agent(model="gpt-4")
+        # Should use default prompt from file
+        assert agent._system_prompt is not None
+        assert len(agent._system_prompt) > 0
+        messages = list(agent.history)
+        assert messages[0]["role"] == "system"
 
     def test_agent_with_system_prompt(self):
         agent = Agent(model="gpt-4")
